@@ -119,6 +119,28 @@ function stay() {
     document.getElementById("results").innerText = message;
 }
 
+function restart() {
+    dealerSum = 0;
+    yourSum = 0;
+    dealerAceCount = 0;
+    yourAceCount = 0;
+    canHit = true;
+
+    // Clear the UI
+    document.getElementById("dealer-cards").innerHTML = "";
+    document.getElementById("your-cards").innerHTML = "";
+    document.getElementById("dealer-sum").innerText = "";
+    document.getElementById("your-sum").innerText = "";
+    document.getElementById("results").innerText = "";
+
+    // Rebuild and shuffle the deck
+    buildDeck();
+    shuffleDeck();
+
+    // Start a new game
+    startGame();
+}
+
 function getValue(card) {
     let data = card.split("-"); // "4-C" -> ["4", "C"]
     let value = data[0];
