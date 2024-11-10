@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #2b2b2b;
+            color: #ffffff;
+        }
+        .game-container {
+            margin: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #333;
+            display: inline-block;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1e90ff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #104e8b;
+        }
+        .card {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blackjack</h1>
+    <div class="game-container">
+        <div id="player-cards"></div>
+        <div id="dealer-cards"></div>
+        <div id="game-info"></div>
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="hit()">Hit</button>
+        <button onclick="stand()">Stand</button>
+    </div>
+    
+    <script>
+        let playerHand = [];
+        let dealerHand = [];
+        let deck = [];
+        const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+        function createDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5); // Shuffle deck
+        }
+
+        function startGame() {
+            createDeck();
+            playerHand = [drawCard(), drawCard()];
+            dealerHand = [drawCard()];
+            updateGameInfo();
+        }
+
+        function drawCard() {
+            return deck.pop();
+        }
+
+        function getHandValue(hand) {
+            let value = 0;
+            let aceCount = 0;
+            for (let card of hand) {
+                if (['J', 'Q', 'K'].includes(card.value)) {
+                    value += 10;
+                } else if (card.value === 'A') {
+                    aceCount++;
+                    value += 11;
+                } else {
+                    value += parseInt(card.value);
+                }
+            }
+            while (value > 21 && aceCount > 0) {
+                value -= 10;
+                aceCount--;
+            }
+            return value;
+        }
+
+        function updateGameInfo() {
+            document.getElementById('player-cards').innerHTML = `Player: ${displayHand(playerHand)} (Value: ${getHandValue(playerHand)})`;
+            document.getElementById('dealer-cards').innerHTML = `Dealer: ${displayHand(dealerHand)} (Value: ${getHandValue(dealerHand)})`;
+            document.getElementById('game-info').innerHTML = checkOutcome();
+        }
+
+        function displayHand(hand) {
+            return hand.map(card => `${card.value} of ${card.suit}`).join(', ');
+        }
+
+        function hit() {
+            playerHand.push(drawCard());
+            updateGameInfo();
+            if (getHandValue(playerHand) > 21) {
+                document.getElementById('game-info').innerHTML = 'Player Busted! Dealer Wins!';
+            }
+        }
+
+        function stand() {
+            while (getHandValue(dealerHand) < 17) {
+                dealerHand.push(drawCard());
+            }
+            updateGameInfo();
+            if (getHandValue(dealerHand) > 21) {
+                document.getElementById('game-info').innerHTML = 'Dealer Busted! Player Wins!';
+            } else if (getHandValue(playerHand) > getHandValue(dealerHand)) {
+                document.getElementById('game-info').innerHTML = 'Player Wins!';
+            } else if (getHandValue(playerHand) < getHandValue(dealerHand)) {
+                document.getElementById('game-info').innerHTML = 'Dealer Wins!';
+            } else {
+                document.getElementById('game-info').innerHTML = 'Its a Tie!';
+            }
+        }
+    </script>
+</body>
+</html>
